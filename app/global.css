@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+	background-color: #f0f0f0;
+}
+
+header {
+	color: #555;
+	padding: 0.3rem 2.5rem;
+}
+
+header .app-title {
+	font-size: 1.5rem;
+}

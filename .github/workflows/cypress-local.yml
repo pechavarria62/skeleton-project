@@ -1,0 +1,91 @@
+# name: Next.js 13 CI with Cypress E2E Tests
+
+# on: [push]
+
+# jobs:
+#   test-e2e:
+#     runs-on: ubuntu-latest
+
+#     services:
+#       postgres:
+#         image: postgres:latest
+#         env:
+#           POSTGRES_PASSWORD: postgres
+#           POSTGRES_USER: postgres
+#           POSTGRES_DB: db
+#         ports:
+#           - 5432:5432
+#         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+#     steps:
+#       - name: Cache node modules and nextjs cache
+#         uses: actions/cache@v3
+#         with:
+#           path: |
+#             ~/.npm
+#             ${{ github.workspace }}/.next/cache
+#           # Generate a new cache whenever packages or source files change.
+#           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+#           # If source files changed but packages didn't, rebuild from a prior cache.
+#           restore-keys: |
+#             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+#       - name: Cache cypress cache
+#         uses: actions/cache@v3
+#         with:
+#           path: ~/.cache/Cypress
+#           key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-cypress-
+
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 18
+
+#       - name: Install Dependencies
+#         run: |
+#           npm install
+
+#       # - name: Build Next.js App
+#       #   run: |
+#       #     npm run vercel-build
+#       #   env:
+#       #     DATABASE_URL: 'postgres://postgres:postgres@localhost/db'
+#       #     CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+#       #     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+#       #     CYPRESS_CLERK_TEST_PASSWORD: ${{ secrets.CYPRESS_CLERK_TEST_PASSWORD }}
+
+#       - name: Run prisma migrations
+#         run: npx prisma generate && npx prisma migrate deploy
+#         env:
+#           DATABASE_URL: 'postgres://postgres:postgres@localhost/db'
+
+#       - name: Add seed data
+#         run: npx prisma db seed
+#         env:
+#           DATABASE_URL: 'postgres://postgres:postgres@localhost/db'
+
+#       - name: Start Up Next.js App
+#         run: |
+#           nohup npm run dev &
+#         env:
+#           DATABASE_URL: 'postgres://postgres:postgres@localhost/db'
+#           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+#           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+#           CYPRESS_CLERK_TEST_PASSWORD: ${{ secrets.CYPRESS_CLERK_TEST_PASSWORD }}
+
+#       - name: Wait for Next.js App to be ready
+#         run: |
+#           npx wait-on http://localhost:3000
+
+#       - name: Run Cypress E2E Tests
+#         run: |
+#           npx cypress run --env CYPRESS_CLERK_TEST_PASSWORD=${{ secrets.CYPRESS_CLERK_TEST_PASSWORD }}
+#         timeout-minutes: 2
+#         env:
+#           DATABASE_URL: 'postgres://postgres:postgres@localhost/db'
+#           CYPRESS_CLERK_TEST_PASSWORD: ${{ secrets.CYPRESS_CLERK_TEST_PASSWORD }}
